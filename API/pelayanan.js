@@ -48,20 +48,18 @@ router.post('/daftar',authenticateToken,upload.single('file'), async (req, res) 
         jadwal: parsedData.jadwal
     });
     const qrDir = path.join(__dirname, '..', 'qrcode'); 
-    if (!fs.existsSync(qrDir)) {
-        fs.mkdirSync(qrDir, { recursive: true }); 
-    }
+    const qrFileName = `qrcode_${pelayanan.kode}.png`;
+    const qrPath = path.join(qrDir, qrFileName);
+    
 
 
-    const qrPath = path.join(qrDir, `qrcode_${pelayanan.kode}.png`);
     const qrText = `http://localhost:3000/pelayanan/kode/${pelayanan.kode}`; 
 
     await QRCode.toFile(qrPath, qrText, {
         width: 300, 
         margin: 2
     });
-
-    pelayanan.qr_code = qrPath;
+    pelayanan.qr_code = `qrcode/${qrFileName}`;
     await pelayanan.save();
         return res.status(201).json({
             status: "success",
@@ -105,6 +103,29 @@ router.get('/user', authenticateToken, async (req, res) => {
         return res.status(200).json({
             status: "success",
             content: pelayanan,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: "database_error",
+            content: error.message,
+        });
+    }
+});
+
+router.get('/kantor', authenticateToken, async (req, res) => {
+    try {
+        const kantor = await Kantor.findAll();
+
+        if (!kantor) {
+            return res.status(404).json({
+                status: "not_found",
+                content: "kantor tidak ditemukan",
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            content: kantor,
         });
     } catch (error) {
         return res.status(500).json({
