@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize('pura', 'postgres', 'rama', {
-    host: 'localhost',
+    host: 'pura',
     dialect: 'postgres',
     logging: false, 
 });
